@@ -1,0 +1,26 @@
+{
+    "hooks": {
+        "/app": {
+            "jobs": [{
+                "container": "campbel/pipeline-build",
+                "environment": {
+                    "IMAGE": "campbel/app:latest",
+                    "DOCKERFILE": "SimpleDockerCICD/app"
+                },
+                "volumes": {
+                    "/var/run/docker.sock": "/var/run/docker.sock"
+                } 
+            },{
+                "container": "campbel/pipeline-deploy",
+                "environment": {
+                    "NAME": "app",
+                    "PORT": "80:80",
+                    "IMAGE": "campbel/app:latest"
+                },
+                "volumes": {
+                    "/var/run/docker.sock": "/var/run/docker.sock"
+                }
+            }]
+        }
+    }
+}
