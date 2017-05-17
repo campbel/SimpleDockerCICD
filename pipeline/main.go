@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
@@ -13,10 +15,21 @@ const (
 )
 
 var (
-	dockerUsername = os.Getenv("DOCKER_USERNAME")
-	dockerPassword = os.Getenv("DOCKER_PASSWORD")
-	githubSecret   = os.Getenv("GITHUB_SECRET")
+	dockerUsername = getSecret("DOCKER_USERNAME")
+	dockerPassword = getSecret("DOCKER_PASSWORD")
+	githubSecret   = getSecret("GITHUB_SECRET")
 )
+
+func getSecret(key string) string {
+	if os.Getenv(key) != "" {
+		return os.Getenv(key)
+	}
+	data, err := ioutil.ReadFile("/run/secrets/" + key)
+	if err != nil {
+		panic(err)
+	}
+	return strings.TrimSpace(string(data))
+}
 
 func main() {
 	fmt.Println("starting up...")
