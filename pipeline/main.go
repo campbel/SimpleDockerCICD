@@ -26,10 +26,32 @@ func getSecret(key string) string {
 	}
 	data, err := ioutil.ReadFile("/run/secrets/" + key)
 	if err != nil {
-		panic(err)
+		fmt.Println("couldn't find secret", key)
+		return ""
 	}
 	return strings.TrimSpace(string(data))
 }
+
+const rootHTML = `
+<html>
+	<head>
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">	
+		<style>
+			body {
+				font-family: 'Roboto', sans-serif;
+			}
+			.title {
+				text-align: center;
+				margin: 40px 0px 20px;
+				color: rgba(50,50,50,1);
+			}
+		</style>
+	</head>
+	<body>
+		<h1 class="title">Simple Docker CI/CD</h1>
+	</body>
+</html>
+`
 
 func main() {
 	fmt.Println("starting up...")
@@ -53,14 +75,14 @@ func main() {
 		fmt.Fprint(w, "OK")
 	})
 
-	http.HandleFunc("/", root)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(w, rootHTML)
+	})
+
 	if err := http.ListenAndServe(":80", nil); err != nil {
 		panic(err)
 	}
-}
-
-func root(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "OK")
 }
 
 // wrap the builds in an authentication wrapper to verify the request came from github
