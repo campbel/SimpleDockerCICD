@@ -36,6 +36,10 @@ func main() {
 		http.Handle(path, githubAuthenticationWrapper(hook))
 	}
 
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "OK")
+	})
+
 	http.HandleFunc("/", root)
 	if err := http.ListenAndServe(":80", nil); err != nil {
 		panic(err)
@@ -52,30 +56,6 @@ func githubAuthenticationWrapper(handler http.Handler) http.HandlerFunc {
 		handler.ServeHTTP(w, r)
 	}
 }
-
-//
-// Github Events
-//
-
-type GithubEvent struct {
-	Ref        string
-	Repository GithubRepository
-	Pusher     GithubPusher
-}
-
-type GithubRepository struct {
-	URL      string
-	CloneURL string `json:"clone_url"`
-}
-
-type GithubPusher struct {
-	Name  string
-	Email string
-}
-
-//
-// Define the Build Config
-//
 
 type PipelineConfig struct {
 	Hooks map[string]HookConfig
