@@ -73,18 +73,16 @@ type JobConfig struct {
 }
 
 func (hook HookConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var event GithubEvent
-	json.NewDecoder(r.Body).Decode(&event)
-	if err := jobSequence(event.Repository.CloneURL, hook.Jobs); err != nil {
+	if err := jobSequence(hook.Jobs); err != nil {
 		http.Error(w, "job failed", http.StatusInternalServerError)
 		return
 	}
 }
 
-func jobSequence(repository string, jobs []JobConfig) error {
+func jobSequence(jobs []JobConfig) error {
 
 	for _, job := range jobs {
-		if err := jobExecute(repository, job); err != nil {
+		if err := jobExecute(job); err != nil {
 			return err
 		}
 	}
@@ -92,12 +90,11 @@ func jobSequence(repository string, jobs []JobConfig) error {
 	return nil
 }
 
-func jobExecute(repository string, job JobConfig) error {
+func jobExecute(job JobConfig) error {
 
 	args := []string{"run"}
 
 	args = append(args,
-		"-e", "REPOSITORY="+repository,
 		"-e", "DOCKER_USERNAME="+dockerUsername,
 		"-e", "DOCKER_PASSWORD="+dockerPassword)
 

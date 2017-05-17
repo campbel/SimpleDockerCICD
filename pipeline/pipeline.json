@@ -2,6 +2,7 @@
     "hooks": {
         "/app": {
             "jobs": [{
+                "repository": "https://github.com/campbel/SimpleDockerApp.git",
                 "container": "campbel/pipeline-build",
                 "environment": {
                     "IMAGE": "campbel/app:latest",
